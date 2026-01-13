@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>DOS 2.0 Live Gate Demo</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 20p auto; }
+    textarea { width: 100%; height: 100px; }
+    pre { background: #111; color: #0f0; padding: 10px; overflow-x: auto; }
+    .status-APPROVE { color: #0a0; font-weight: bold; }
+    .status-REJECT { color: #f33; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>DOS 2.0 Probabilistic -> Deterministic Gate</h2>
+  <p>Type any prompt. THe AI can be wrong, but the gate only passes outputs that meet hard rules. </p>
+  <textarea id="prompt">Explain quantum interlocks in one safe paragraph.</textarea>
+  <br /><br />
+  <button onclick="run()">RUn DOS 2.0 Gate</button>
+  <p id="status"></p>
+  <pre id="result"></pre>
+
+  <script>
+    async function run() {
+      const prompt = document.getElementById("prompt").value;
+
+      document.getElementById("status").textContent = "Running...";
+
+      document.getElementById("result").textContent = "";
+
+      const res = await fetch("http://localhost:8080/dos2/infer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+
+      document.getElementById("status").innerHTML = `Status: <span class="status-${data.status}">${data.status}</span> | latency ${data.envelop?.latency_ms} ms`;
+
+      document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
